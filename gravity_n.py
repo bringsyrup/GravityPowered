@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-** this version can be geared up N times such that the gear ratio is (r/R)^(N-1)
+** this version can be geared up n times such that the gear ratio is (r/R)^(n-1)
 - This script calculates the mass and vertical travel distance required to 
 power a given load for t minutes given specs on a rectified alternator.
 - The required spec is alternator rpm for a given power load, P. 
@@ -12,7 +12,7 @@ power a given load for t minutes given specs on a rectified alternator.
 from math import pi
 import argparse
 
-parser = argparse.ArgumentParser(description="N-gear gravity-powered alternator") 
+parser = argparse.ArgumentParser(description="n-gear gravity-powered alternator") 
 
 g = 9.8 #gravity constant, m/s^2
 r = .0635 #small gear radius, m
@@ -21,7 +21,7 @@ R = .3429 #large gear radius based on 27" OD bicycle wheel, m
 parser.add_argument("rpm", type=float, help="required rpm for power load, rpm")
 parser.add_argument("P", type=float, help="power load, W")
 parser.add_argument("t", type=float, help="desired run-time, minutes")
-parser.add_argument("N", type=int, help="integer number of gear-ups, integer")
+parser.add_argument("n", type=int, help="integer number of gear-ups, integer")
 parser.add_argument("-v", "--verbose", action="store_true")
 
 args = parser.parse_args()
@@ -31,7 +31,7 @@ v_gen = args.rpm * 2 * pi * r / 60
 t_sec = args.t * 60 
 
 #the calculation of m_weight depends on P and v_gen. ask Casey for alternator specs
-v_weight = v_gen * pow(r/R, (args.N-1))
+v_weight = v_gen * pow(r/R, (args.n-1))
 m_weight = args.P / (g * v_weight)
 dist = v_weight * t_sec
 
