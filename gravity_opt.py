@@ -83,7 +83,7 @@ if args.specs:
     ylabel("power efficiency, %")
     suptitle("full characterization curves from data")
     show()
-#else, generate data for finding optimal power load from max_mass
+#else, get optimal values for load, mass, and number of gear-ups
 else:
     P_mech_max = args.max_mass * g * dist / args.time
     P_mechs, P_loads, omega_poly, coeffs_load, coeffs_eff, eff = generate_curves(P_mech_max)
