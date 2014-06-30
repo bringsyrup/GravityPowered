@@ -1,88 +1,69 @@
 #!/usr/bin/env python
 
 '''
-** use optional positional argument "n" for a gear ratio of (R/r)^n. Else n = 5.
+this version optimizes for energy efficiency and returns optimal power load and number of gear-ups, "n"
 '''
+
 import numpy as np
-from matplotlib.pyplot import * 
-import argparse
+from matplotlib.pyplot import *
+import argparse as ap
+#from sympy import *
+#import spicy as sp
 
-
-parser = argparse.ArgumentParser(description="Gravity-powered alternator optimization") 
-parser.add_argument("P", type=float, help="power load, W")
-parser.add_argument("t", type=float, help="desired run-time, minutes")
-parser.add_argument("n", type=int, nargs='?', help="integer number of gear-ups, integer")
-parser.add_argument("-v", "--verbose", action="store_true")
-parser.add_argument("-s", "--specs", action="store_true", help="print characterization graphs for generator")
+parser = ap.ArgumentParser(description="Gravity-powered generator optimization")
+parser.add_argument("max_n", type=int, help= "max number of gear-ups in optimization, integer")
+parser.add_argument("max_mass", type=int, help="max mass allowed in optimization")
+parser.add_argument("time", type=float, help="minimum desired run-time")
+parser.add_argument("-s", "--specs", action="store_true", help="prints charachterization data for generator")
 args = parser.parse_args()
 
-def alternator_data(): #the data in this function is a placeholder!
-	P_mech_data = np.linspace(0, 100, 11)	
-	omega_data = [0., 30., 60., 80., 95., 100., 105., 115., 135., 160., 200.]
-	coefficients = np.polyfit(P_mech_data, omega_data, 4)
-	return coefficients
+dist = 1.5 #max distance allowed. might change to iterable later?
+g = 9.8 #gravitational constant, m/s^2
+min_mass = 0
+P_mech_range = 400 #this is the mechanical power range used to get power load data
 
-def get_output(n):
-	m_weight = torque_gen * pow(R, n-1) / (g * pow(r, n))
-	v_weight = omega * pow(r, n) / pow(R, n-1)
-	dist = v_weight * t_sec
-	pack_ans = [m_weight, v_weight, dist]
-	return pack_ans
+#generate characterization curves in range(0, max_P)
+def generate_curves(max_P):
+    #generate polymonial from P_mech vs P_load data
+    P_mech_data = np.linspace(1, P_mech_range, 11)
+    P_load_data = [0., 10., 30., 60., 100., 140., 175., 190., 195., 198., 200.]
+    coefficients = np.polyfit(P_mech_data, P_load_data, 4)
+    P_load_poly = np.poly1d(coefficients)
+    P_mechs = np.arange(0, max_P, 1)
+    P_load = P_load_poly(P_mechs)
+    #generate efficiency curve 
+    eff_data = P_load_data / P_mech_data
+    coeffs = np.polyfit(P_load_data, eff_data, 4)
+    eff_poly = np.poly1d(coeffs)
+    P_loads = np.arange(0, int(max(P_load)))
+    efficiency = eff_poly(P_loads)
+    return P_mechs, P_load, P_loads, efficiency, coeffs 
 
-def sigfigs(x):
-    format = "%.2e"
-    as_string = format % x
-    return as_string
-
+#if specs option on, show full generator characterization curves
 if args.specs:
-	coefficients = alternator_data()
-	omega_poly = np.poly1d(coefficients)
-	P_mechs = np.arange(0, 100, 1)
-	omegas = omega_poly(P_mechs)
-
-	P_e = np.linspace(0, 100, 1000)
-	eff_poly = -0.0002 * pow(P_e - 50, 2) + 0.5	
-
-	fig = figure()
-	subplot(211)
-	plot(P_e, eff_poly)
-	xlabel('Power load (W)')
-	ylabel('Efficiency')
-	subplot(212)
-	plot(P_mechs, omegas)
-	xlabel('Mechanical power of alternator (W)')
-	ylabel('Rotational frequency of alternator')
-	suptitle('Alternator characterization', fontsize=20)
-	show()
+    P_mechs, P_load, P_loads, eff, coeffs = generate_curves(P_mech_range)
+    fig = figure()
+    subplot(211)
+    plot(P_mechs, P_load)
+    subplot(212)
+    plot(P_loads, eff)
+    show()
+#else, generate data for finding optimal power load from max_mass
 else:
-	g = 9.8 #gravitational constant, m/s^2
-	r = .0635 #small gear radius, m
-	R = .3429 #large gear radius based on 27" OD bicycle wheel, m
-	t_sec = args.t * 60 #convert t to seconds
-
-	efficiency = -0.0002 * pow(args.P - 50, 2) + 0.5 #this equation is a placeholder
-
-	if efficiency <= 0:
-		print "not a valid power load for this generator. Try option --specs for more info."
-	else:
-		P_mech = args.P / efficiency
-		coefficients = alternator_data()
-		omega = 0.
-		for coefficient in range(len(coefficients)):
-			omega += coefficients[coefficient] * pow(P_mech, 4 - coefficient)
-		torque_gen = P_mech / omega
-
-		if args.n:
-			unpack_ans = get_output(args.n)
-		else:
-			unpack_ans = get_output(5)
-
-		#convert answers to sci notation with 3 sig figs
-		M_weight = sigfigs(unpack_ans[0])
-		V_weight = sigfigs(unpack_ans[1])
-		Dist = sigfigs(unpack_ans[2])
-
-		if args.verbose:
-			print "%s m required at %s m/s using a %s kg mass" % (Dist, V_weight, M_weight)
-		else:
-			print " %s m \n %s m/s \n %s kg" % (Dist, V_weight, M_weight)
+    P_mech_max = args.max_mass * g * dist / args.time
+    P_mechs, P_load, P_loads, eff, coeffs = generate_curves(P_mech_max)
+    eff_max = max(eff)
+    print eff_max
+    for P in P_loads:
+        for i in range(len(coeffs)):
+            eff_i = coeffs[i] * pow(P, len(coeffs - 1) - i)
+            #print eff_i
+            if eff_i == eff_max:
+                print P
+            
+'''
+Efficiency = []
+for item in P_mech_array:
+    for coefficient in range(len(coefficients)):
+        P_load += coefficients[coefficient] * pow(item, len(coefficients) - coefficient)
+'''      
