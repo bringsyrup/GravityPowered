@@ -20,8 +20,13 @@ r = .0635 #small gear radius, m
 R = .3429 #large gear radius, m
 dist = 1.5 #max practical distance allowed
 g = 9.8 #gravitational constant, m/s^2
-P_mech_range = 400 #this is currently used to generate the mechanical power range, but when data exists get rid of P_mech_range and replace P_mech_data with a data array. Similarly, all other current data arrays are stand-ins until real data is aquired. If more than one data set is available, I should figure out how to parse in arrays from a script containing the data sets.
-
+P_mech_range = 400 
+'''P_mech_range is currently used to generate the mechanical power range, but when /
+data exists get rid of P_mech_range and replace P_mech_data with a data array. /
+Similarly, all other current data arrays are stand-ins until real data is aquired. /
+If more than one data set is available, I should figure out how to import or argparse arrays /
+from a script containing the data sets.
+'''
 def generate_curves(max_P):
     #generate P_load vs P_mech curve from P_mech and P_load data
     P_mech_data = np.linspace(1, P_mech_range, 11)
@@ -64,7 +69,6 @@ def get_gears(radius, Radius, mass, power, omega, gravity):
 #if specs option on, show full generator characterization curves
 if args.specs:
     P_mechs, P_load, omega, P_loads, eff = generate_curves(P_mech_range)
-    fig = figure()
     subplot(311)
     plot(P_mechs, omega)
     xlabel("mechanical power input, W")
@@ -89,5 +93,5 @@ else:
     omega_opt = omega_poly(P_mech_opt)
     mass_opt = P_mech_opt * args.time / (g * dist)
     gears_opt = get_gears(r, R, mass_opt, P_mech_opt, omega_opt, g)
-    print " %s Watt optimal load \n %s kg optimal mass \n %s gear-ups" % (P_load_opt, mass_opt, gears_opt)
+    print " %s Watt load \n %s kg mass \n %s gear-ups" % (P_load_opt, mass_opt, gears_opt)
 
