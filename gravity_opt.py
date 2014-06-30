@@ -10,7 +10,6 @@ from matplotlib.pyplot import *
 import argparse as ap
 
 parser = ap.ArgumentParser(description="Gravity-powered generator optimization")
-parser.add_argument("max_n", type=int, help= "max number of gear-ups in optimization, integer")
 parser.add_argument("max_mass", type=int, help="max mass allowed in optimization")
 parser.add_argument("time", type=float, help="minimum desired run-time")
 parser.add_argument("-s", "--specs", action="store_true", help="prints characterization data for generator")
@@ -52,7 +51,6 @@ def get_optimals(self_values, coeffs, scalar_opt):
         scalar_i = 0.
         for i in range(len(coeffs)):
             scalar_i = coeffs[i] * pow(value, len(coeffs) - (1 + i))
-        print scalar_i
         if scalar_i == scalar_opt:
             optimal_value = value
             return optimal_value 
