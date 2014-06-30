@@ -21,7 +21,6 @@ r = .0635 #small gear radius, m
 R = .3429 #large gear radius, m
 dist = 1.5 #max practical distance allowed
 g = 9.8 #gravitational constant, m/s^2
-min_mass = 0
 P_mech_range = 400 #this is currently used to generate the mechanical power range, but when data exists get rid of P_mech_range and replace P_mech_data with a data array. Similarly, all other current data arrays are stand-ins until real data is aquired. If more than one data set is available, I should figure out how to parse in arrays from a script containing the data sets.
 
 def generate_curves(max_P):
