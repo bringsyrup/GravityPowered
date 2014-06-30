@@ -42,19 +42,20 @@ def generate_curves(max_P):
     eff_poly = np.poly1d(coeffs_eff)
     P_loads = np.linspace(0, max(P_load), len(P_load))
     efficiency = eff_poly(P_loads)
-    if max_P = P_mech_max:
+    if not args.specs:
         return P_mechs, P_loads, omega_poly, coeffs_load, coeffs_eff, efficiency
     else:
         return P_mechs, P_load, omega, P_loads, efficiency 
 
-def get_optimals(self, coeffs, scalar_opt):
-    for value in self: #attempting to print P_load corresponding to eff_max
+def get_optimals(self_values, coeffs, scalar_opt):
+    for value in self_values: #attempting to print P_load corresponding to eff_max
+        scalar_i = 0.
         for i in range(len(coeffs)):
             scalar_i = coeffs[i] * pow(value, len(coeffs) - (1 + i))
-            #print eff_i
-            if scalar_i == scalar_opt:
-                optimal_value = value
-                return optimal_value 
+        print scalar_i
+        if scalar_i == scalar_opt:
+            optimal_value = value
+            return optimal_value 
 
 def get_gears(radius, Radius, mass, power, omega, gravity):
     base = radius / Radius
