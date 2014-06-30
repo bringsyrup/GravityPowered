@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-this version optimizes for energy efficiency and returns optimal power load and number of gear-ups, "n"
+this version optimizes for energy efficiency and returns optimal power load and number of gear-ups
 '''
 
 import math as m
@@ -15,7 +15,7 @@ parser = ap.ArgumentParser(description="Gravity-powered generator optimization")
 parser.add_argument("max_n", type=int, help= "max number of gear-ups in optimization, integer")
 parser.add_argument("max_mass", type=int, help="max mass allowed in optimization")
 parser.add_argument("time", type=float, help="minimum desired run-time")
-parser.add_argument("-s", "--specs", action="store_true", help="prints charachterization data for generator")
+parser.add_argument("-s", "--specs", action="store_true", help="prints characterization data for generator")
 args = parser.parse_args()
 
 #constants
