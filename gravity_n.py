@@ -43,15 +43,16 @@ if args.specs:
 	P_e = np.linspace(0, 100, 1000)
 	eff_poly = -0.0002 * pow(P_e - 50, 2) + 0.5	
 
-	fig = figure()
 	subplot(211)
-	plot(P_e, eff_poly)
-	xlabel('Power load (W)')
-	ylabel('Efficiency')
+        axis=14
+        line=3.
+	plot(P_e, eff_poly, linewidth=line)
+	xlabel('Power load (W)', fontsize=axis)
+	ylabel('Efficiency', fontsize=axis)
 	subplot(212)
-	plot(P_mechs, omegas)
-	xlabel('Mechanical power of alternator (W)')
-	ylabel('Rotational frequency of alternator')
+	plot(P_mechs, omegas, linewidth=line)
+	xlabel('Mechanical power of alternator (W)', fontsize=axis)
+	ylabel('Rotational frequency of alternator', fontsize=axis)
 	suptitle('Alternator characterization', fontsize=20)
 	show()
 else:

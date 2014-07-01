@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-this version optimizes for energy efficiency and returns optimal power load and number of gear-ups
+this version optimizes for energy efficiency and returns optimal power load, mass, and number of gear-ups
 '''
 
 import math as m
@@ -33,7 +33,7 @@ def generate_curves(max_P):
     P_load_data = [0., 10., 30., 60., 100., 140., 175., 190., 195., 198., 200.]
     coeffs_load = np.polyfit(P_mech_data, P_load_data, 4)
     P_load_poly = np.poly1d(coeffs_load)
-    P_mechs = np.arange(0, max_P, 1)
+    P_mechs = np.linspace(0, max_P, max_P)
     P_load = P_load_poly(P_mechs)
     #generate omega vs P_mech curve from omega data and P_mech_data
     omega_data = [0., 30., 60., 80., 95., 100., 105., 115., 135., 160., 200]
@@ -44,21 +44,12 @@ def generate_curves(max_P):
     eff_data = P_load_data / P_mech_data
     coeffs_eff = np.polyfit(P_load_data, eff_data, 4)
     eff_poly = np.poly1d(coeffs_eff)
-    P_loads = np.linspace(0, max(P_load), len(P_load))
-    efficiency = eff_poly(P_loads)
+    #P_loads = np.linspace(0, max(P_load), max(P_load))
+    efficiency = eff_poly(P_load)
     if not args.specs:
-        return P_mechs, P_loads, omega_poly, coeffs_load, coeffs_eff, efficiency
+        return P_mechs, P_load, omega_poly, coeffs_load, coeffs_eff, efficiency
     else:
-        return P_mechs, P_load, omega, P_loads, efficiency 
-
-def get_optimals(self_values, coeffs, scalar_opt):
-    for value in self_values: #attempting to print P_load corresponding to eff_max
-        scalar_i = 0.
-        for i in range(len(coeffs)):
-            scalar_i = coeffs[i] * pow(value, len(coeffs) - (1 + i))
-        if scalar_i == scalar_opt:
-            optimal_value = value
-            return optimal_value 
+        return P_mechs, P_load, omega, efficiency 
 
 def get_gears(radius, Radius, mass, power, omega, gravity):
     base = radius / Radius
@@ -68,30 +59,31 @@ def get_gears(radius, Radius, mass, power, omega, gravity):
 
 #if specs option on, show full generator characterization curves
 if args.specs:
-    P_mechs, P_load, omega, P_loads, eff = generate_curves(P_mech_range)
+    axis = 14 #set axis fontsize
+    line = 3.
+    P_mechs, P_load, omega, eff = generate_curves(P_mech_range)
     subplot(311)
-    plot(P_mechs, omega)
-    xlabel("mechanical power input, W")
-    ylabel("rotational velocity, rad/s")
+    plot(P_mechs, omega, linewidth=line)
+    xlabel("mechanical power input, W", fontsize=axis)
+    ylabel("rotational velocity, rad/s", fontsize=axis)
     subplot(312)
-    plot(P_mechs, P_load)
-    xlabel("mechanical power input, W")
-    ylabel("electrical power output, W")
+    plot(P_mechs, P_load, linewidth=line)
+    xlabel("mechanical power input, W", fontsize=axis)
+    ylabel("electrical power output, W", fontsize=axis)
     subplot(313)
-    plot(P_loads, eff)
-    xlabel("electrical power output, W")
-    ylabel("power efficiency, %")
-    suptitle("full characterization curves from data")
+    plot(P_load, eff, linewidth=line)
+    xlabel("electrical power output, W", fontsize=axis)
+    ylabel("power efficiency", fontsize=axis)
+    suptitle("full characterization curves from data", fontsize=20)
     show()
 #else, get optimal values for load, mass, and number of gear-ups
 else:
     P_mech_max = args.max_mass * g * dist / args.time
-    P_mechs, P_loads, omega_poly, coeffs_load, coeffs_eff, eff = generate_curves(P_mech_max)
+    P_mechs, P_load, omega_poly, coeffs_load, coeffs_eff, eff = generate_curves(P_mech_max)
     eff_opt = max(eff)
-    P_load_opt = get_optimals(P_loads, coeffs_eff, eff_opt)
-    P_mech_opt = get_optimals(P_mechs, coeffs_load, P_load_opt) 
+    P_load_opt = P_load[np.where(eff==eff_opt)]
+    P_mech_opt = P_mechs[np.where(P_load==P_load_opt)]
     omega_opt = omega_poly(P_mech_opt)
     mass_opt = P_mech_opt * args.time / (g * dist)
     gears_opt = get_gears(r, R, mass_opt, P_mech_opt, omega_opt, g)
-    print " %s Watt load \n %s kg mass \n %s gear-ups" % (P_load_opt, mass_opt, gears_opt)
-
+    print " %d Watt load \n %d kg mass \n %d gear-ups" % (P_load_opt, mass_opt, gears_opt)
