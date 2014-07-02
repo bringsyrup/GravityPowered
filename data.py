@@ -26,7 +26,9 @@ def get_data(input_data, find_max=None):
         return P_mech_data, P_load_data, omega_data
 
 if __name__=='__main__':
+    '''
     P_mech_data, P_load_data, omega_data = get_data('fake_data.txt')
     P_mech_range = get_data('fake_data.txt', 'find_max')
     eff = np.divide(P_load_data, P_mech_data)
-    print P_mech_range 
+    print P_mech_range
+    '''
