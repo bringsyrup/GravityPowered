@@ -1,7 +1,7 @@
 READ gravGen.pdf FOR THE MATH BEHIND THE CODE. IT'S A BUNCH OF PHYSICS STUFF,
 LOOK UP GEAR SYSTEMS IF IT'S DIFFICULT TO FOLLOW.
 
--- gravity_opt.py is for findinf the optimal power load for a gravity-powered gear system connected to an electrical generator/alternator. The system is optimized with given characterization data from the desired generator/alternator. Fake data (fake_data.txt) is provided in the repo as an example and for running the code without real data. See REQUIREMENTS to learn more about the required data.
+-- gravity_opt.py is for finding the optimal power load for a gravity-powered gear system connected to an electrical generator/alternator. The system is optimized with given characterization data from the desired generator/alternator. Fake data (fake_data.txt) is provided in the repo as an example and for running the code without real data. See REQUIREMENTS to learn more about the required data.
 
 -- gravity_n.py (in directory old_stuff) doesn't optimize for energy efficiency, is pretty straight forward, and doesn't really do anything interesting.
 
