@@ -1,9 +1,0 @@
-Some info about the scripts in the repo:
-
--- gravity_opt.py is for optimizing efficiency. It's pretty boring and reads a lot like a matab script. It's just a ton of math statements.
-
--- gravity_n.py is what I made when I wasn't sure what Abigail wanted, I think it's more interesting code-wise, but doesn't optimize energy efficiency.
-
--- gravity_5.py is a less-robust version of the above, and should probably just be deleted from the repo, but I kept it for records sake. 
-
-I strongly suggest reading gravGen.pdf if you want to see the math behind the python scripts. It outlines the thought process behind the code.

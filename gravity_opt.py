@@ -8,23 +8,22 @@ import math as m
 import numpy as np
 from matplotlib.pyplot import *
 import argparse as ap
-import constants as c
+from constants import *
+import data
 
-def generate_curves(max_P):
+def generate_curves(data_file, max_P):
+    P_mech_data, P_load_data, omega_data = data.get_data(data_file)
     #generate P_load vs P_mech curve from P_mech and P_load data
-    P_mech_data = np.linspace(1, c.P_mech_range, 11)
-    P_load_data = [0., 10., 30., 60., 100., 140., 175., 190., 195., 198., 200.]
     coeffs_load = np.polyfit(P_mech_data, P_load_data, 4)
     P_load_poly = np.poly1d(coeffs_load)
     P_mechs = np.linspace(0, max_P, max_P)
     P_load = P_load_poly(P_mechs)
     #generate omega vs P_mech curve from omega data and P_mech_data
-    omega_data = [0., 30., 60., 80., 95., 100., 105., 115., 135., 160., 200]
     coeffs_omega = np.polyfit(P_mech_data, omega_data, 4)
     omega_poly = np.poly1d(coeffs_omega)
     omega = omega_poly(P_mechs)
     #generate efficiency vs load curve from P_load_data and P_mech_data
-    eff_data = P_load_data / P_mech_data
+    eff_data = np.divide(P_load_data, P_mech_data) 
     coeffs_eff = np.polyfit(P_load_data, eff_data, 4)
     eff_poly = np.poly1d(coeffs_eff)
     #P_loads = np.linspace(0, max(P_load), max(P_load))
@@ -35,8 +34,8 @@ def generate_curves(max_P):
         return P_mechs, P_load, omega, efficiency 
 
 def get_gears(mass, power, omega):
-    base = c.r / c.R
-    arg = power / (c.R * omega * mass * c.g)
+    base = r / R
+    arg = power / (R * omega * mass * g)
     gears = m.log(arg, base)
     return gears
 
@@ -49,18 +48,20 @@ def sigfigs(as_float):
 
 if __name__=='__main__':
 
-    parser = ap.ArgumentParser(description="Gravity-powered generator optimization")
+    parser = ap.ArgumentParser(description="Gravity-powered gear system for running generator with given data. For more info read README.txt.")
     parser.add_argument("max_mass", type=int, help="max mass allowed in optimization")
     parser.add_argument("time", type=float, help="minimum desired run-time")
+    parser.add_argument("data_file", type=str, help="file must be .txt format and contain data as specified in README.txt")
     parser.add_argument("-s", "--specs", action="store_true", help="prints characterization data for generator")
     parser.add_argument("-v", "--verbose", action="store_true", help="print answers in sci notation with 3 significant figures instead of as integers")
     args = parser.parse_args()
 
         #if specs option on, show full generator characterization curves
     if args.specs:
+        P_mech_range = data.get_data(args.data_file, 'find_max')
+        P_mechs, P_load, omega, eff = generate_curves(args.data_file, P_mech_range)
         axis = 14 #set axis fontsize
         line = 3.
-        P_mechs, P_load, omega, eff = generate_curves(P_mech_range)
         subplot(311)
         plot(P_mechs, omega, linewidth=line)
         xlabel("mechanical power input, W", fontsize=axis)
@@ -77,18 +78,21 @@ if __name__=='__main__':
         show()
     #else, get optimal values for load, mass, and number of gear-ups
     else:
-        P_mech_max = args.max_mass * c.g * c.dist / args.time
-        P_mechs, P_load, omega_poly, coeffs_load, coeffs_eff, eff = generate_curves(P_mech_max)
+        P_mech_max = args.max_mass * g * dist / args.time
+        P_mechs, P_load, omega_poly, coeffs_load, coeffs_eff, eff = generate_curves(args.data_file, P_mech_max)
         eff_opt = max(eff)
         P_load_opt = P_load[np.where(eff==eff_opt)]
         P_mech_opt = P_mechs[np.where(P_load==P_load_opt)]
-        omega_opt = omega_poly(P_mech_opt)
-        mass_opt = P_mech_opt * args.time / (c.g * c.dist)
-        gears_opt = get_gears(mass_opt, P_mech_opt, omega_opt)
-        if args.verbose:
-            P_load_opt = sigfigs(P_load_opt)
-            mass_opt = sigfigs(mass_opt)
-            gears_opt = sigfigs(gears_opt)
-            print " %s Watt load \n %s kg mass \n %s gear-ups" % (P_load_opt, mass_opt, gears_opt)
+        if P_mech_opt <= 0. or m.isnan(P_mech_opt) == True:
+            print "The maximum mass input is not high enough for this generator. Try --help for more info."
         else:
-            print " %d Watt load \n %d kg mass \n %d gear-ups" % (P_load_opt, mass_opt, gears_opt)
+            omega_opt = omega_poly(P_mech_opt)
+            mass_opt = P_mech_opt * args.time / (g * dist)
+            gears_opt = get_gears(mass_opt, P_mech_opt, omega_opt)
+            if args.verbose:
+                P_load_opt = sigfigs(P_load_opt)
+                mass_opt = sigfigs(mass_opt)
+                gears_opt = sigfigs(gears_opt)
+                print " %s Watt load \n %s kg mass \n %s gear-ups" % (P_load_opt, mass_opt, gears_opt)
+            else:
+                print " %d Watt load \n %d kg mass \n %d gear-ups" % (P_load_opt, mass_opt, gears_opt)
