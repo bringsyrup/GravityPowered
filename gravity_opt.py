@@ -12,6 +12,7 @@ from constants import *
 import data
 
 def generate_curves(data_file, max_P):
+    #load raw data from text file and convert to arrays
     P_mech_data, P_load_data, omega_data = data.get_data(data_file)
     #generate P_load vs P_mech curve from P_mech and P_load data
     coeffs_load = np.polyfit(P_mech_data, P_load_data, 4)
@@ -52,11 +53,11 @@ if __name__=='__main__':
     parser.add_argument("max_mass", type=int, help="max mass allowed in optimization")
     parser.add_argument("time", type=float, help="minimum desired run-time")
     parser.add_argument("data_file", type=str, help="file must be .txt format and contain data as specified in README.txt")
-    parser.add_argument("-s", "--specs", action="store_true", help="prints characterization data for generator")
+    parser.add_argument("-s", "--specs", action="store_true", help="print best-fit polynomials for generator data")
     parser.add_argument("-v", "--verbose", action="store_true", help="print answers in sci notation with 3 significant figures instead of as integers")
     args = parser.parse_args()
 
-        #if specs option on, show full generator characterization curves
+    #if specs option on, show full generator characterization curves
     if args.specs:
         P_mech_range = data.get_data(args.data_file, 'find_max')
         P_mechs, P_load, omega, eff = generate_curves(args.data_file, P_mech_range)
