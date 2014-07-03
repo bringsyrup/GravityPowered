@@ -39,11 +39,11 @@ def get_gears(mass, power, omega):
     arg = power / (R * omega * mass * g)
     n = m.log(arg, base)
     if args.ratio:
-        gear_units = "gear ratio"
+        gear_units = ":1 gear ratio"
         gear_ratio =  pow((1. / base), (n - 1.))
         return gear_ratio, gear_units   
     else:
-        gear_units = "gear-ups"
+        gear_units = " gear-ups"
         return n, gear_units
 
 def sigfigs(as_float):
@@ -101,9 +101,9 @@ if __name__=='__main__':
                 P_load_opt = sigfigs(P_load_opt)
                 mass_opt = sigfigs(mass_opt)
                 gears_opt = sigfigs(gears_opt)
-                print " %s Watt load \n %s kg mass \n %s %s" % (P_load_opt, mass_opt, gears_opt, gear_units)
+                print " %s Watt load \n %s kg mass \n %s%s" % (P_load_opt, mass_opt, gears_opt, gear_units)
             else:
                 P_load_opt = round(P_load_opt)
                 mass_opt = round(mass_opt)
                 gears_opt = round(gears_opt)
-                print " %d Watt load \n %d kg mass \n %d %s" % (P_load_opt, mass_opt, gears_opt, gear_units)
+                print " %d Watt load \n %d kg mass \n %d%s" % (P_load_opt, mass_opt, gears_opt, gear_units)
