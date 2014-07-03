@@ -29,21 +29,27 @@ def generate_curves(data_file, max_P):
     eff_poly = np.poly1d(coeffs_eff)
     #P_loads = np.linspace(0, max(P_load), max(P_load))
     efficiency = eff_poly(P_load)
-    if not args.specs:
-        return P_mechs, P_load, omega_poly, coeffs_load, coeffs_eff, efficiency
+    if args.specs:
+        return P_mechs, P_load, omega, efficiency
     else:
-        return P_mechs, P_load, omega, efficiency 
+        return P_mechs, P_load, omega_poly, coeffs_load, coeffs_eff, efficiency
 
 def get_gears(mass, power, omega):
     base = r / R
     arg = power / (R * omega * mass * g)
-    gears = m.log(arg, base)
-    return gears
+    n = m.log(arg, base)
+    if args.ratio:
+        gear_units = "gear ratio"
+        gear_ratio =  pow((1. / base), (n - 1.))
+        return gear_ratio, gear_units   
+    else:
+        gear_units = "gear-ups"
+        return n, gear_units
 
 def sigfigs(as_float):
     if type(as_float)=='numpy.ndarray':
         as_float = float(as_float)
-    format = "%.2e"
+    format = "%.3e"
     as_string = format % as_float
     return as_string
 
@@ -54,7 +60,8 @@ if __name__=='__main__':
     parser.add_argument("time", type=float, help="minimum desired run-time")
     parser.add_argument("data_file", type=str, help="file must be .txt format and contain data as specified in README.txt")
     parser.add_argument("-s", "--specs", action="store_true", help="print best-fit polynomials for generator data")
-    parser.add_argument("-v", "--verbose", action="store_true", help="print answers in sci notation with 3 significant figures instead of as integers")
+    parser.add_argument("-r", "--ratio", action="store_true", help="prints the optimal gear ratio in place of the number of gear-ups. no need to change the radius values in constants.py")
+    parser.add_argument("-v", "--verbose", action="store_true", help="print answers in sci notation with 4 significant figures instead of as integers")
     args = parser.parse_args()
 
     #if specs option on, show full generator characterization curves
@@ -89,11 +96,14 @@ if __name__=='__main__':
         else:
             omega_opt = omega_poly(P_mech_opt)
             mass_opt = P_mech_opt * args.time / (g * dist)
-            gears_opt = get_gears(mass_opt, P_mech_opt, omega_opt)
+            gears_opt, gear_units = get_gears(mass_opt, P_mech_opt, omega_opt)
             if args.verbose:
                 P_load_opt = sigfigs(P_load_opt)
                 mass_opt = sigfigs(mass_opt)
                 gears_opt = sigfigs(gears_opt)
-                print " %s Watt load \n %s kg mass \n %s gear-ups" % (P_load_opt, mass_opt, gears_opt)
+                print " %s Watt load \n %s kg mass \n %s %s" % (P_load_opt, mass_opt, gears_opt, gear_units)
             else:
-                print " %d Watt load \n %d kg mass \n %d gear-ups" % (P_load_opt, mass_opt, gears_opt)
+                P_load_opt = round(P_load_opt)
+                mass_opt = round(mass_opt)
+                gears_opt = round(gears_opt)
+                print " %d Watt load \n %d kg mass \n %d %s" % (P_load_opt, mass_opt, gears_opt, gear_units)
