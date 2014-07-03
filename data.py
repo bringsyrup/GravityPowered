@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-takes data from data.txt and turns it into arrays to be used in gravity_opt.py
+takes data from data text file and turns it into numpy arrays for gravity_opt.py
 """
 
 import csv
