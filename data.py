@@ -4,12 +4,13 @@
 takes data from data text file and turns it into numpy arrays for gravity_opt.py
 """
 
-import csv
 import numpy as np
 
 def get_data(input_data, find_max=None):
     with open(input_data) as input_file:
-        data_lists = list(csv.reader(input_file))
+        data_lists = []
+        for line in input_file:
+            data_lists.append(line.strip().split())
     data_arrays = []
     for lst in data_lists:
         as_array = []
