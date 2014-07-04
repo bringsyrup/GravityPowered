@@ -55,13 +55,33 @@ def sigfigs(as_float):
 
 if __name__=='__main__':
 
-    parser = ap.ArgumentParser(description="Gravity-powered gear system for running generator with given data. For more info read README.txt.")
-    parser.add_argument("max_mass", type=int, help="max mass allowed in optimization")
-    parser.add_argument("time", type=float, help="minimum desired run-time")
-    parser.add_argument("data_file", type=str, help="file must be .txt format and contain data as specified in README.txt")
-    parser.add_argument("-s", "--specs", action="store_true", help="print best-fit polynomials for generator data")
-    parser.add_argument("-r", "--ratio", action="store_true", help="prints the optimal gear ratio in place of the number of gear-ups. no need to change the radius values in constants.py")
-    parser.add_argument("-v", "--verbose", action="store_true", help="print answers in sci notation with 4 significant figures instead of as integers")
+    parser = ap.ArgumentParser(
+            description = "Gravity-powered gear system for running generator with given data. For more info read README.txt."
+            )
+    parser.add_argument("max_mass",
+            type = int,
+            help = "max mass allowed in optimization"
+            )
+    parser.add_argument("time",
+            type = float,
+            help = "minimum desired run-time"
+            )
+    parser.add_argument("data_file",
+            type = str,
+            help = "file must be .txt format and contain data as specified in README.txt"
+            )
+    parser.add_argument("-s", "--specs",
+            action = "store_true",
+            help = "print best-fit polynomials for generator data"
+            )
+    parser.add_argument("-r", "--ratio",
+            action = "store_true",
+            help = "prints the optimal gear ratio in place of the number of gear-ups. no need to change the radius values in constants.py"
+            )
+    parser.add_argument("-v", "--verbose",
+            action = "store_true",
+            help = "print answers in sci notation with 4 significant figures instead of as integers"
+            )
     args = parser.parse_args()
 
     #if specs option on, show full generator characterization curves
